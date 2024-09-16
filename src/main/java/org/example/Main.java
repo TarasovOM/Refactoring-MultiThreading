@@ -1,27 +1,32 @@
 package org.example;
 
-import org.example.Server;
-
-import java.io.BufferedOutputStream;
-import java.util.logging.Handler;
-import java.util.logging.LogRecord;
+import java.io.IOException;
 
 public class Main {
+    final static int PORT = 9999;
 
     public static void main(String[] args) {
 
-        Server server = new Server(64);
+        final var server = new Server();
 
-        server.addHandler("GET", "/messages", new Handler() {
+        for (String validPath : ClientHandler.validPaths) {
 
-        });
-        server.addHandler("POST", "/messages", new Handler() {
-            public void handle(Request request, BufferedOutputStream responseStream) {
-                // TODO: handlers code
+            server.addHandler("GET", validPath, (request, responseStream) -> {
+                try {
+                    ClientHandler.responseOK(request, responseStream);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+
+        server.addHandler("POST", "/resources.html", (request, responseStream) -> {
+            try {
+                ClientHandler.responseOK(request, responseStream);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         });
-
-        server.listen(9999);
+        server.listen(PORT);
     }
-}
 }
